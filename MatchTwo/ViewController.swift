@@ -9,6 +9,9 @@ import UIKit
 
 class ViewController: UIViewController {
     
+    @IBOutlet weak var movesLabel: UILabel!
+    @IBOutlet weak var timeLabel: UILabel!
+    
     var images = ["AR", "BR", "CH", "FR", "GR", "KR", "KZ", "US", "AR", "BR", "CH", "FR", "GR", "KR", "KZ", "US"]
     
     var state = [Int](repeating: 0, count: 16)
@@ -16,12 +19,35 @@ class ViewController: UIViewController {
     var winState = [[0, 8], [1, 9], [2, 10], [3, 11], [4, 12], [5, 13], [6, 14], [7, 15]]
     
     var isActive = false
+    
+    var time = 0
+    
+    var moves = 0
+    
+    var timer = Timer()
+    
+    var isFinished = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
     }
-
+    
+    @objc func saveTime(){
+        if time < 0 {
+            timer.invalidate()
+            return
+        }
+        timeLabel.text = timeToString(time: time)
+        time += 1
+    } // Секундомер
+    
+    @IBAction func startGame(_ sender: UIButton) {
+        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(saveTime), userInfo: nil, repeats: true)
+        
+        sender.isHidden = true
+    } // Кнопка "Start" чтобы можно было один раз запустить секундомер и после кнопка исчезает 👍🏻
+    
     @IBAction func game(_ sender: UIButton) {
         
         if state[sender.tag - 1] != 0 || isActive {
@@ -53,7 +79,30 @@ class ViewController: UIViewController {
             if isActive {
                 Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(clear), userInfo: nil, repeats: false)
             }
+            
+            moves += 1
+            movesLabel.text = "\(moves)" // Подсчет ходов
+            
+            isFinished = true
+            for item in state {
+                if item != 2 {
+                    isFinished = false
+                    break
+                    } // Проверка на то, что в массиве state все 2 (то есть пары найдены)
+            }
+            
+            if isFinished {
+                timer.invalidate()
+                let alert = UIAlertController(title: "Победа", message: "за \(moves) ходов и \(timeToString(time: time)) времени!", preferredStyle: .alert)
+                
+                alert.addAction(UIAlertAction(title: "Play Again", style: .default, handler: {_ in self.playAgain()}))//Нужна функция, чтобы он очищал всё
+                
+                present(alert, animated: true)
+            } // Завершение игры: посчет времени и ходов
+            
         }
+        
+        
     }
         
     @objc func clear(){
@@ -66,6 +115,31 @@ class ViewController: UIViewController {
             }
         }
         isActive = false
+    }
+    
+    @objc func timeToString(time: Int) -> String {
+        let hour = time / 3600
+        let minute = time / 60 % 60
+        let second = time % 60
+        return String(format: "%02i:%02i:%02i",hour, minute, second)
+    }
+    
+    func playAgain(){
+        for i in 0..<state.count {
+            state[i] = 0
+            if let button = view.viewWithTag(i + 1) as? UIButton {
+                button.setBackgroundImage(nil, for: .normal)
+            }
+        }
+        
+        moves = 0
+        movesLabel.text = "0"
+        time = 0
+        timeLabel.text = "00:00:00"
+        isActive = false
+        isFinished = false
+        
+        //sender.isHidden = true
     }
     
 }
