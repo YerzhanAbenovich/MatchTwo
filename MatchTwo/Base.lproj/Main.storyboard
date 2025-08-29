@@ -206,6 +206,7 @@
                     </view>
                     <connections>
                         <outlet property="movesLabel" destination="Nnn-L7-H3K" id="FmU-6R-N4P"/>
+                        <outlet property="startButton" destination="0rD-8a-rH8" id="17V-2z-MnB"/>
                         <outlet property="timeLabel" destination="dQZ-jC-ByP" id="Sfz-ho-QTS"/>
                     </connections>
                 </viewController>

@@ -12,11 +12,9 @@ class ViewController: UIViewController {
     @IBOutlet weak var movesLabel: UILabel!
     @IBOutlet weak var timeLabel: UILabel!
     
-    var images = ["AR", "BR", "CH", "FR", "GR", "KR", "KZ", "US", "AR", "BR", "CH", "FR", "GR", "KR", "KZ", "US"]
+    var game = GameModel()
     
     var state = [Int](repeating: 0, count: 16)
-    
-    var winState = [[0, 8], [1, 9], [2, 10], [3, 11], [4, 12], [5, 13], [6, 14], [7, 15]]
     
     var isActive = false
     
@@ -27,10 +25,13 @@ class ViewController: UIViewController {
     var timer = Timer()
     
     var isFinished = false
+    
+    @IBOutlet weak var startButton: UIButton!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        game.newGame()
     }
     
     @objc func saveTime(){
@@ -43,9 +44,10 @@ class ViewController: UIViewController {
     } // Секундомер
     
     @IBAction func startGame(_ sender: UIButton) {
-        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(saveTime), userInfo: nil, repeats: true)
         
-        sender.isHidden = true
+        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(saveTime), userInfo: nil, repeats: true)
+            
+        startButton.isHidden = true
     } // Кнопка "Start" чтобы можно было один раз запустить секундомер и после кнопка исчезает 👍🏻
     
     @IBAction func game(_ sender: UIButton) {
@@ -54,7 +56,7 @@ class ViewController: UIViewController {
             return
         }
         
-        sender.setBackgroundImage(UIImage(named: images[sender.tag - 1]), for: .normal)
+        sender.setBackgroundImage(UIImage(named: game.images[sender.tag - 1]), for: .normal)
         
         state[sender.tag - 1] = 1
         
@@ -69,7 +71,7 @@ class ViewController: UIViewController {
         
         if count == 2 {
             isActive = true
-            for winArray in winState {
+            for winArray in game.winState {
                 if state[winArray[0]] == state[winArray[1]] && state[winArray[1]] == 1 {
                     state[winArray[0]] = 2
                     state[winArray[1]] = 2
@@ -138,8 +140,10 @@ class ViewController: UIViewController {
         timeLabel.text = "00:00:00"
         isActive = false
         isFinished = false
+        startButton.isHidden = false
         
-        //sender.isHidden = true
+        game.newGame()
+        
     }
     
 }
